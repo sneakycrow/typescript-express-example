@@ -42,7 +42,17 @@ class App {
     // private fn for connecting to db
     private connectToTheDatabase() {
         const { MONGO_USER, MONGO_PASSWORD, MONGO_PATH } = process.env;
-        mongoose.connect(`mongodb://${MONGO_USER}:${MONGO_PASSWORD}${MONGO_PATH}`);
+        mongoose.connect(
+            `mongodb+srv://${MONGO_USER}:${MONGO_PASSWORD}@${MONGO_PATH}`,
+            {
+                useNewUrlParser: true
+            }
+        ).then(
+            // tslint:disable-next-line:no-console
+            () => console.log("Connected to Database"),
+            // tslint:disable-next-line:no-console
+            (err) => console.log(err)
+        );
     }
 }
 
