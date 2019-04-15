@@ -1,6 +1,8 @@
 import * as express from "express";
 import PostNotFoundException from "../exceptions/PostNotFoundException";
 import Controller from "../interfaces/controller.interface";
+import validationMiddleware from "../middleware/validation.middleware";
+import CreatePostDto from "./post.dto";
 import Post from "./post.interface";
 import postModel from "./posts.model";
 
@@ -18,9 +20,10 @@ class PostsController {
     public initializeRoutes() {
         this.router.get(this.path, this.getAllPosts);
         this.router.get(`${this.path}/:id`, this.getPostsById);
-        this.router.put(`${this.path}/:id`, this.modifyPost);
         this.router.delete(`${this.path}/:id`, this.deletePost);
-        this.router.post(this.path, this.createPost);
+        // NOTE: These two create/patch posts, and we want to validate their data. So we add a validator middleware
+        this.router.patch(`${this.path}/:id`, validationMiddleware(CreatePostDto, true), this.modifyPost);
+        this.router.post(this.path, validationMiddleware(CreatePostDto), this.createPost);
     }
 
     // Func for grabbing all posts and returning them
