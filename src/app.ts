@@ -2,6 +2,8 @@ import bodyParser from "body-parser";
 import express from "express";
 import mongoose from "mongoose";
 import morgan from "morgan";
+import Controller from "./interfaces/controller.interface";
+import errorMiddleware from "./middleware/error.middleware";
 
 // Initialize a class App for the express application
 class App {
@@ -9,13 +11,14 @@ class App {
     public port: number;
 
     // Initialize app, middlewares, and controllers
-    constructor(controllers: any, port: any) {
+    constructor(controllers: Controller[], port: any) {
         this.app = express();
         this.port = Number(process.env.PORT);
 
         this.connectToTheDatabase();
         this.initializeMiddlewares();
         this.initializeControllers(controllers);
+        this.initializeErrorHandling();
     }
 
     // Public listen fn for "listening"
@@ -33,10 +36,17 @@ class App {
     }
 
     // private controllers intializer
-    private initializeControllers(controllers: any) {
+    private initializeControllers(controllers: Controller[]) {
         controllers.forEach((controller: any) => {
             this.app.use("/", controller.router);
         });
+    }
+
+    // private error handling initializer
+    private initializeErrorHandling() {
+        // This is initialize the same as a middleware, but isn't a middleware in and of itself, so I
+        // put it in a different func for seperation of concerns
+        this.app.use(errorMiddleware);
     }
 
     // private fn for connecting to db

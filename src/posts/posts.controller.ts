@@ -1,4 +1,5 @@
 import * as express from "express";
+import PostNotFoundException from "../exceptions/PostNotFoundException";
 import Controller from "../interfaces/controller.interface";
 import Post from "./post.interface";
 import postModel from "./posts.model";
@@ -31,25 +32,29 @@ class PostsController {
     }
 
     // Func for getting a post by its id
-    // NOTE: This doesn't have error handling, so if your id doesn't exist it might have unintended results
-    // TODO: Add error handling
-    private getPostsById = (request: express.Request, response: express.Response) => {
+    private getPostsById = (request: express.Request, response: express.Response, next: express.NextFunction) => {
         const id = request.params.id;
         this.post.findById(id)
             .then((post) => {
-                response.send(post);
+                if (post) {
+                    response.send(post);
+                } else {
+                    next(new PostNotFoundException(id));
+                }
             });
     }
 
     // Func for modifying a post
-    // NOTE: This doesn't have error handling, so if your id doesn't exist it might have unintended results
-    // TODO: Add error handling
-    private modifyPost = (request: express.Request, response: express.Response) => {
+    private modifyPost = (request: express.Request, response: express.Response, next: express.NextFunction) => {
         const id = request.params.id;
         const postData: Post = request.body;
         this.post.findByIdAndUpdate(id, postData, { new: true })
             .then((post) => {
-                response.send(post);
+                if (post) {
+                    response.send(post);
+                } else {
+                    next(new PostNotFoundException(id));
+                }
             });
     }
 
@@ -66,14 +71,14 @@ class PostsController {
     // Func for deleteing a post
     // NOTE: This doesn't have _proper_ error handling. It basically knows to fail when there's an error
     // TODO: Customize error handling for different scenarios
-    private deletePost = (request: express.Request, response: express.Response) => {
+    private deletePost = (request: express.Request, response: express.Response, next: express.NextFunction) => {
         const id = request.params.id;
         this.post.findByIdAndDelete(id)
             .then((successResponse) => {
                 if (successResponse) {
                     response.send(200);
                 } else {
-                    response.send(400);
+                    next(new PostNotFoundException(id));
                 }
             });
     }
