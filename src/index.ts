@@ -1,10 +1,10 @@
 import * as mongoose from "mongoose";
 import App from "./app";
-import TestController from "./controllers/test.controller";
+import PostsController from "./posts/posts.controller";
 
 const app = new App(
     [
-        new TestController()
+        new PostsController()
     ],
     process.env.PORT
 );
